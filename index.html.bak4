@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaspi Hub</title>
+<style>
+:root{--bg:#f3f1ec;--card:#fbfaf7;--ink:#1f1d19;--mute:#7c776c;--amber:#b8862f;--sand:#d9c4a0;--bad:#b3432f;--ok:#3f7a4a;--line:#e3dfd5}
+@media (prefers-color-scheme:dark){:root{--bg:#16140f;--card:#201d17;--ink:#f1ede4;--mute:#9b9585;--sand:#5a4a2c;--line:#332e24}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 "Avenir Next","Segoe UI",system-ui,sans-serif;display:flex;min-height:100vh}
+nav{width:200px;padding:22px 12px;border-right:1px solid var(--line);flex:none}
+nav b{display:block;padding:0 10px 16px;font-size:18px}
+nav a{display:block;padding:9px 10px;border-radius:8px;color:var(--mute);text-decoration:none;margin-bottom:2px}
+nav a.on{background:var(--card);color:var(--ink);font-weight:600}
+main{flex:1;min-width:0;max-width:1100px;padding:26px 24px 60px}
+h1{margin:0 0 4px;font-size:26px}
+.meta{color:var(--mute);font-size:13px;margin-bottom:16px}
+.meta.err{color:var(--bad)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.bar button,.bar input,.bar select{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.bar button.on{background:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.card{background:var(--card);border-radius:10px;padding:14px 16px}
+.card span{display:block;color:var(--mute);font-size:13px}
+.card b{display:block;font-size:24px;margin-top:2px;font-variant-numeric:tabular-nums}
+.card.warn{box-shadow:inset 0 0 0 1.5px var(--amber)}.card.bad b{color:var(--bad)}.card.ok b{color:var(--ok)}
+.big{font-size:clamp(64px,12vw,112px);font-weight:800;line-height:.95;letter-spacing:-.04em}
+.big small{font-size:.22em;font-weight:600;color:var(--mute);letter-spacing:0;margin-left:10px}
+.panel{background:var(--card);border-radius:10px;padding:16px 18px;margin-top:12px}
+h2{font-size:16px;margin:0 0 12px}
+.chart{display:flex;align-items:flex-end;gap:4px;height:140px;margin-top:46px}
+.col{position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.bar1{width:100%;background:var(--sand);border-radius:3px 3px 0 0;min-height:2px}.col.now .bar1{background:var(--amber)}
+.col i{font-style:normal;font-size:11px;color:var(--mute);margin-top:4px;height:14px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-weight:500;color:var(--mute);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;background:var(--line)}
+.tag.Новый{background:#fbe8c0;color:#7a5410}.tag.Предзаказ{background:#e6defa;color:#4d3a8a}.tag.В\ доставке{background:#d9e8f8;color:#254f7e}
+.tag.Завершён{background:#dcefdc;color:#2c6a37}.tag.Отменён,.tag.Возврат{background:#f6dcd6;color:#8f3322}
+.red{color:var(--bad)}.grn{color:var(--ok)}.mut{color:var(--mute)}
+.att{padding:10px 14px;border-radius:8px;background:color-mix(in srgb,var(--bad) 12%,transparent);margin-bottom:6px}
+.msg{padding:30px 0;color:var(--mute)}
+.tip{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);white-space:nowrap;background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:6px;font-size:12px;line-height:1.4;z-index:5;pointer-events:none}
+.col:hover .tip{display:block}.col:hover .bar1{background:var(--amber)}.col.l .tip{left:0;transform:none}.col.rr .tip{left:auto;right:0;transform:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:760px){.two{grid-template-columns:1fr}}
+.rec{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.rec:first-of-type{border-top:0}
+.tag.Критично{background:#f6dcd6;color:#8f3322}.tag.Важно{background:#fbe8c0;color:#7a5410}
+.hb{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line);margin-bottom:8px}
+.in{width:88px;font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);text-align:right}
+@media (max-width:760px){body{flex-direction:column}nav{width:auto;display:flex;flex-wrap:wrap;gap:4px;border:0;padding:12px}nav b{width:100%;padding-bottom:4px}}
+</style>
+</head>
+<body>
+<nav><b>Kaspi Hub</b>
+  <a href="#home">Главная</a><a href="#analytics">Аналитика</a><a href="#products">Товары</a><a href="#orders">Заказы</a><a href="#pack">Упаковка</a><a href="#stock">Склад</a><a href="#pricelist">Прайс-лист</a><a href="#marketing">Маркетинг</a><a href="#log">Журнал действий</a><a href="#settings">Настройки</a>
+</nav>
+<main><div id="view"></div></main>
+<script>
+const $=s=>document.querySelector(s),f=n=>new Intl.NumberFormat("ru-RU").format(Math.round(n||0));
+const m=n=>n>=1e6?(n/1e6).toFixed(2).replace(".",",")+" млн ₸":f(n)+" ₸";
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const iso=d=>d.toLocaleDateString("sv"),ago=n=>iso(new Date(Date.now()-n*864e5));
+let TOPN=5,R={from:ago(6),to:iso(new Date())},Q={q:"",label:"",page:0,filter:"all"},page="";
+const card=(l,v,c="")=>`<div class="card ${c}"><span>${l}</span><b>${v}</b></div>`;
+async function api(p,q={}){
+  const r=await fetch(p+"?"+new URLSearchParams(q));const j=await r.json();
+  if(j.error&&!j.data)throw new Error(j.error);return j}
+function head(title,j,extra=""){
+  const e=j.error?` · ошибка обновления: ${esc(j.error)}`:"";
+  return `<h1>${title}</h1><div class="meta ${j.error?"err":""}">Заказы из Kaspi обновлены в ${j.sync}, дальше каждые ${P.refresh_min||5} мин${e}${extra}</div>`}
+function rangeBar(){
+  const b=n=>`<button data-d="${n}" class="${R.from===ago(n-1)&&R.to===iso(new Date())?"on":""}">${n} дн.</button>`;
+  return `<div class="bar">${[7,14,30].map(b).join("")}<input type="date" id="f" value="${R.from}"><input type="date" id="t" value="${R.to}"></div>`}
+function bindRange(){
+  document.querySelectorAll("[data-d]").forEach(x=>x.onclick=()=>{R={from:ago(x.dataset.d-1),to:iso(new Date())};route()});
+  $("#f").onchange=e=>{R.from=e.target.value;route()};$("#t").onchange=e=>{R.to=e.target.value;route()}}
+const pend=n=>n?` · названия товаров загружены не для ${f(n)} заказов, догружаются в фоне`:"";
+
+async function home(){
+  const j=await api("/api/today"),d=j.data,L=d.labels,mx=Math.max(...d.hours.map(x=>x[0]),1),h=new Date().getHours(),tm=Math.max(...d.top.map(t=>t.qty),1);
+  $("#view").innerHTML=head("Главная",j,pend(d.pending))+`
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:end;margin:18px 0">
+    <div><div class="big">${f(d.total)}<small>заказов сегодня</small></div>
+    <p class="mut"><b style="color:var(--ink)">${m(d.revenue)}</b> выручка без отмен · средний чек <b style="color:var(--ink)">${f(d.avg)} ₸</b></p></div>
+    <div class="grid">${card("Новые",f(L["Новый"]),L["Новый"]?"warn":"")}${card("Предзаказы",f(L["Предзаказ"]))}${card("В доставке",f(L["В доставке"]))}
+    ${card("Самовывоз",f(L["Самовывоз"]))}${card("Завершено",f(L["Завершён"]))}${card("Отменено",f(L["Отменён"]),L["Отменён"]?"bad":"")}</div></div>
+  <div class="panel"><h2>Заказы по часам <span class="mut" style="font-weight:400">· алматинское время</span></h2><div class="chart">
+  ${d.hours.map((v,i)=>`<div class="col ${i==h?"now":""} ${i<3?"l":i>20?"rr":""}"><div class="tip"><b>${i}:00–${i}:59</b><br>${v[0]} заказов<br>${m(v[1])}</div><div class="bar1" style="height:${v[0]/mx*100}%"></div><i>${i%2?"":i}</i></div>`).join("")}</div></div>
+  <div class="two"><div class="panel"><h2>Рекомендации</h2>${d.recs.map(r=>`<div class="rec"><div><b>${esc(r.title)}</b><div class="mut">${esc(r.text)}</div></div><span class="tag ${r.level}" style="align-self:flex-start">${r.level}</span></div>`).join("")||'<p class="mut">Срочных дел нет.</p>'}</div>
+  <div class="panel"><h2>Здоровье склада</h2>${(()=>{const H=d.health,T=H.ok+H.deficit+H.out||1;return `<div class="hb"><div style="width:${H.ok/T*100}%;background:var(--ok)"></div><div style="width:${H.deficit/T*100}%;background:var(--bad)"></div><div style="width:${H.out/T*100}%;background:var(--mute)"></div></div>
+  <p class="mut" style="margin:0 0 8px">В наличии ${H.ok} · Дефицит ${H.deficit} · Нет ${H.out}</p>
+  ${H.items.map(x=>`<div class="rec"><span>${esc(x.sku)} ${esc(x.name)}</span><b class="red">${x.units}</b></div>`).join("")}
+  <p class="mut" style="margin:8px 0 0">Стоимость склада по цене продажи ${f(H.value)} ₸</p>`})()}</div></div>
+  <div class="panel"><h2>Товары сегодня <span class="mut" style="font-weight:400">· ${d.top.length} поз., ${f(d.top.reduce((a,t)=>a+t.qty,0))} шт</span></h2><div class="tw"><table>${d.top.slice(0,TOPN).map((t,i)=>`<tr><td class="mut">${i+1}</td><td>${esc(t.name)}
+  <div style="height:4px;margin-top:5px;background:var(--line);border-radius:2px"><div style="height:100%;width:${t.qty/tm*100}%;background:var(--amber);border-radius:2px"></div></div></td>
+  <td class="r">${t.qty} шт<br><span class="mut">${m(t.sum)}</span></td></tr>`).join("")||'<tr><td class="msg">Пока нет данных о товарах.</td></tr>'}</table></div>${d.top.length>5?`<div class="bar"><button id="more">${TOPN>5?"Свернуть":"Больше ("+(d.top.length-5)+")"}</button></div>`:""}</div>`;
+  const mb=$("#more");if(mb)mb.onclick=()=>{TOPN=TOPN>5?5:1e9;home()}}
+
+async function analytics(){
+  const j=await api("/api/analytics",R),d=j.data,days=d.daily;
+  const pc=n=>d.total?(n/d.total*100).toFixed(1).replace(".",",")+"% заказов":"";
+  $("#view").innerHTML=head("Аналитика",j)+rangeBar()+`
+  ${d.attention.length?`<h2>Требует внимания (${d.attention.length})</h2>`+d.attention.map(a=>`<div class="att">${esc(a)}</div>`).join(""):""}
+  <div class="grid">${card("Выручка за период",m(d.revenue),"ok")}${card("Заказов",f(d.total))}${card("Средний чек",f(d.avg)+" ₸")}
+  ${card("Отменено",f(d.cancelled),"bad")+""}${card("Возвраты",f(d.returns))}</div>
+  <p class="mut" style="margin:-4px 0 0">Отмены: ${pc(d.cancelled)||"—"} · возвраты: ${pc(d.returns)||"—"}</p>
+  <div class="panel"><h2>Динамика по дням</h2><div class="bar" style="margin:0 0 8px"><button data-k="rev" class="on">Выручка</button><button data-k="n">Заказы</button></div><div id="ch"></div></div>`;
+  bindRange();
+  const draw=k=>{
+    if(days.length<2){$("#ch").innerHTML='<p class="msg">Для графика нужно минимум два дня.</p>';return}
+    const W=900,Hh=220,mx=Math.max(...days.map(x=>x[k]),1),px=i=>10+i/(days.length-1)*(W-20),py=v=>Hh-20-v/mx*(Hh-40);
+    const pts=days.map((x,i)=>px(i)+","+py(x[k])).join(" "),step=Math.ceil(days.length/8);
+    $("#ch").innerHTML=`<svg viewBox="0 0 ${W} ${Hh}" style="width:100%"><polyline fill="none" stroke="var(--amber)" stroke-width="2.5" points="${pts}"/>
+    ${days.map((x,i)=>`<circle cx="${px(i)}" cy="${py(x[k])}" r="3" fill="var(--amber)"><title>${x.d}: ${k=="rev"?m(x[k]):x[k]}</title></circle>${i%step?"":`<text x="${px(i)}" y="${Hh-4}" font-size="12" fill="var(--mute)" text-anchor="middle">${x.d.slice(8)}.${x.d.slice(5,7)}</text>`}`).join("")}
+    <text x="10" y="14" font-size="12" fill="var(--mute)">макс. ${k=="rev"?m(mx):f(mx)}</text></svg>`};
+  draw("rev");
+  document.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-k]").forEach(x=>x.classList.toggle("on",x===b));draw(b.dataset.k)})}
+
+async function products(){
+  const j=await api("/api/products",R),d=j.data;
+  $("#view").innerHTML=head("Товары",j,pend(d.pending))+rangeBar()+`
+  <div class="grid">${card("Продано, шт",f(d.sold))}${card("Выручка",m(d.revenue),"ok")}</div>
+  <div class="bar"><input id="s" placeholder="Поиск по названию или SKU" style="min-width:260px"></div>
+  <div class="panel tw"><table><thead><tr><th>Товар</th><th class="r">Цена</th><th class="r">Остаток</th><th class="r">Продано</th><th class="r">Выручка</th><th class="r">Возвраты</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+  bindRange();
+  const show=()=>{const s=$("#s").value.toLowerCase();
+    $("#tb").innerHTML=d.rows.filter(r=>(r.name+" "+r.sku).toLowerCase().includes(s)).map(r=>`<tr><td>${esc(r.name)}<div class="mut" style="font-size:12px">${esc(r.sku)}</div></td>
+    <td class="r">${r.price!=null?(r.est?`<span class="mut" title="Средняя цена продажи за период: товара нет в ACTIVE.xlsx">~</span>`:"")+f(r.price)+" ₸":"—"}</td><td class="r ${r.units===0?"red":""}">${r.units??`<span class="mut" title="Товара нет в ACTIVE.xlsx: возможно, закончился или снят с продажи">нет в файле</span>`}</td><td class="r">${f(r.sold)}</td>
+    <td class="r">${f(r.revenue)} ₸</td><td class="r ${r.returns?"red":"mut"}">${r.returns||"—"}</td></tr>`).join("")||'<tr><td colspan="6" class="msg">Ничего не найдено.</td></tr>'};
+  $("#s").oninput=show;show()}
+
+async function orders(){
+  const j=await api("/api/orders",{...R,...Q}),d=j.data,pages=Math.max(1,Math.ceil(d.n/50));
+  const labels=["","Новый","Предзаказ","В доставке","Самовывоз","Завершён","Отменён","Возврат","Архив"];
+  $("#view").innerHTML=head("Заказы",j)+rangeBar()+`
+  <div class="bar"><input id="s" placeholder="Номер, клиент, телефон, город" value="${esc(Q.q)}" style="min-width:260px">
+  <select id="l">${labels.map(x=>`<option ${x===Q.label?"selected":""} value="${x}">${x||"Все статусы"}</option>`).join("")}</select></div>
+  <div class="grid">${card("Найдено заказов",f(d.n))}</div>
+  <div class="panel tw"><table><thead><tr><th>Заказ</th><th>Дата</th><th>Статус</th><th>Клиент</th><th>Телефон</th><th>Город</th><th class="r">Сумма</th><th class="r">Шт</th></tr></thead><tbody>
+  ${d.rows.map(r=>`<tr><td>${esc(r.code)}</td><td>${r.t}</td><td><span class="tag ${r.label}">${r.label}</span></td><td>${esc(r.customer)||"—"}</td><td>${esc(r.phone)||"—"}</td><td>${esc(r.city)||"—"}</td><td class="r">${f(r.total)} ₸</td><td class="r">${r.items||"—"}</td></tr>`).join("")||'<tr><td colspan="8" class="msg">Заказов нет.</td></tr>'}</tbody></table></div>
+  <div class="bar"><button id="pv" ${Q.page?"":"disabled"}>Назад</button><span class="mut" style="padding:8px">Страница ${Q.page+1} из ${pages}</span><button id="nx" ${Q.page+1<pages?"":"disabled"}>Вперёд</button></div>`;
+  bindRange();
+  $("#s").onchange=e=>{Q.q=e.target.value;Q.page=0;route()};$("#l").onchange=e=>{Q.label=e.target.value;Q.page=0;route()};
+  $("#pv").onclick=()=>{Q.page--;route()};$("#nx").onclick=()=>{Q.page++;route()}}
+
+async function pack(){
+  const j=await api("/api/pack"),d=j.data;
+  $("#view").innerHTML=head("Упаковка",j)+`<div class="grid">${card("Заказов к упаковке",f(d.orders.length),d.orders.length?"warn":"")}${card("Разных товаров",f(d.groups.length))}${card("Смешанных заказов",f(d.mixed))}</div>
+  <div class="bar"><button class="on" id="go" ${d.orders.length?"":"disabled"}>Сформировать накладные (${d.orders.length})</button><span id="st" class="mut" style="padding:8px"></span></div>
+  <div class="two"><div class="panel"><h2>Порядок печати <span class="mut" style="font-weight:400">· одинаковые подряд</span></h2>${d.groups.map(g=>`<div class="rec"><span>${esc(g.name)}</span><b>${g.units} шт · ${g.orders} зак.</b></div>`).join("")}${d.mixed?`<div class="rec"><span>Смешанные заказы (в конце)</span><b>${d.mixed}</b></div>`:""}</div>
+  <div class="panel tw"><h2>Заказы по порядку</h2><table>${d.orders.map((o,i)=>`<tr><td class="mut">${i+1}</td><td>${esc(o.code)}</td><td>${esc(o.items)}</td></tr>`).join("")||'<tr><td class="msg">Нет заказов к упаковке.</td></tr>'}</table></div></div>`;
+  let T;const tick=async()=>{if(page!=="pack")return;const jb=(await api("/api/pack")).data.job,st=$("#st");if(!st)return;
+    const er=jb.errors.length?` · ошибок: ${jb.errors.length}: ${esc(jb.errors.slice(0,3).join("; "))}`:"";
+    if(jb.state==="run"){st.textContent=`Скачиваю накладные: ${jb.done} из ${jb.total}…`;T=setTimeout(tick,1500)}
+    else if(jb.state==="done")st.innerHTML=`Готово: <a href="/waybills/${jb.file}" target="_blank">открыть PDF</a>${er}`;
+    else if(jb.state==="error")st.innerHTML=`<span class="red">Не получилось${er}</span>`};
+  $("#go").onclick=async()=>{if(!confirm("Сформировать накладные для "+d.orders.length+" заказов? Заказы будут отмечены в Kaspi как упакованные (по 1 месту), это нельзя отменить."))return;$("#go").disabled=true;$("#st").textContent="Запускаю…";await post("/api/waybills",{});tick()};
+  tick()}
+
+async function stock(){
+  const j=await api("/api/stock"),d=j.data;
+  if(!d.sku){$("#view").innerHTML=head("Склад",j)+'<p class="msg">Файл ACTIVE.xlsx не найден или пуст. Загрузите его кнопкой ниже.</p><div class="bar">'+upBtn()+'</div>';bindUp();return}
+  $("#view").innerHTML=head("Склад",j," · остатки из ACTIVE.xlsx (обновить файл — кнопка справа)")+`
+  <div class="grid">${card("SKU всего",f(d.sku))}${card("Единиц на складе",f(d.units))}${card("Стоимость по цене продажи",m(d.value),"warn")}${card("В наличии",f(d.in),"ok")}${card("Нет в наличии",f(d.out),d.out?"bad":"")}${card("Дефицит",f(d.deficit),d.deficit?"bad":"")}</div>
+  <div class="bar"><input id="s" placeholder="Поиск по названию или SKU" style="min-width:260px">
+  <button data-f="all" class="on">Все</button><button data-f="deficit">Дефицит</button><button data-f="out">Нет в наличии</button>${upBtn()}</div>
+  <div class="panel tw"><table><thead><tr><th>SKU</th><th>Товар</th><th class="r">Остаток</th><th class="r">Цена</th><th class="r">Продаж/день</th><th class="r">Хватит на</th><th>Статус</th><th class="r">Сумма</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+  const show=()=>{const s=$("#s").value.toLowerCase();
+    $("#tb").innerHTML=d.rows.filter(r=>(r.name+" "+r.sku).toLowerCase().includes(s)&&(Q.filter=="all"||(Q.filter=="out"?r.out:r.deficit))).map(r=>`<tr><td>${esc(r.sku)}</td><td>${esc(r.name)}</td>
+    <td class="r ${r.out?"red":"grn"}">${r.units}</td><td class="r">${f(r.price)} ₸</td><td class="r">${r.rate||"—"}</td><td class="r ${r.deficit?"red":""}">${r.days==null?"—":r.days+" дн"}</td>
+    <td><span class="tag ${r.pre?"Предзаказ":r.out?"Отменён":"Завершён"}">${r.pre?"Предзаказ":r.out?"Нет":"В продаже"}</span></td><td class="r">${f(r.value)} ₸</td></tr>`).join("")||'<tr><td colspan="8" class="msg">Ничего не найдено.</td></tr>'};
+  bindUp();$("#s").oninput=show;show();
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{Q.filter=b.dataset.f;document.querySelectorAll("[data-f]").forEach(x=>x.classList.toggle("on",x===b));show()})}
+
+const upBtn=()=>`<button id="up">Загрузить ACTIVE.xlsx</button><input type="file" id="upf" accept=".xlsx" hidden>`;
+function bindUp(){const b=$("#up"),i=$("#upf");if(!b)return;b.onclick=()=>i.click();i.onchange=()=>{const fl=i.files[0];if(!fl)return;const rd=new FileReader();
+  rd.onload=()=>post("/api/stock_upload",{file:rd.result.split(",")[1]}).then(r=>{if(r.error)alert(r.error);else stock()});rd.readAsDataURL(fl)}}
+const post=(p,b)=>fetch(p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(r=>r.json());
+let PR={from:ago(29),to:iso(new Date())},PL={k:"revenue",d:-1,pg:0,sz:10,q:""};
+async function pricelist(){
+  let j=await api("/api/pricelist",PR),d=j.data;
+  const sets=[["comm","Комиссия Kaspi, %"],["delivery","Доставка, ₸ за шт."],["tax","Налог, %"]],pc=x=>x==null?"—":x.toFixed(1).replace(".",",")+"%",cap=+(P.drr_cap)||7;
+  const pb=(l,n)=>`<button data-pd="${n}" class="${PR.from===ago(n-1)&&PR.to===iso(new Date())?"on":""}">${l}</button>`;
+  const cols=[["name","Товар","Название и SKU товара"],["price","Цена","Цена на Kaspi из ACTIVE.xlsx"],["units","Остаток","Остаток из ACTIVE.xlsx"],["sold","Продано, шт","Сколько штук продано за период без возвратов"],["revenue","Выручка","Выручка за период без отмен и возвратов"],["cost_total","Себестоимость","Себестоимость проданных штук. Ниже вводится цена закупки за 1 шт."],["profit","Прибыль","Выручка минус комиссия, налог, доставка и себестоимость. Без рекламы."],["margin","Маржа","Прибыль в процентах от выручки"],["ret","Возвраты","Сколько штук вернули и какая это доля от проданного"],["shows","Показы","Сколько раз товар показался в рекламе Kaspi."],["ctr","CTR","Сколько из ста показов рекламы закончились переходом на карточку. Цель: не меньше 3,5%."],["cr","CR","Сколько из ста переходов на карточку закончились заказом. Цель: не меньше 2,5%."],["ads","Реклама","Сколько тенге потрачено на рекламу этого товара за период."],["drr","ДРР","Доля расходов на рекламу: сколько тенге рекламы пришлось на каждые сто тенге выручки. Чем меньше, тем лучше. Потолок: "+cap+"%."],["net_margin","Чистая маржа","Маржа с учётом рекламы"]];
+  $("#view").innerHTML=head("Прайс-лист",j," · цены и остатки из ACTIVE.xlsx, продажи из Kaspi, реклама из раздела «Маркетинг»")+`
+  <div class="bar">${pb("1 нед.",7)}${pb("1 мес.",30)}${pb("3 мес.",90)}${pb("1 год",365)}<input type="date" id="f" value="${PR.from}"><input type="date" id="t" value="${PR.to}">
+  <input id="s" placeholder="Поиск по названию или SKU" value="${esc(PL.q)}" style="min-width:240px"><button id="rf">Обновить</button><button id="ex">Выгрузить в файл</button></div>
+  <div class="grid" id="kp"></div>
+  <div class="panel"><h2>Общие ставки <span class="mut" style="font-weight:400">· нужны для расчёта прибыли</span></h2><div class="bar" style="margin:0">${sets.map(([k,l])=>`<label class="mut">${l}<br><input class="in s" data-s="${k}" type="number" step="any" value="${d.settings[k]}"></label>`).join("")}</div></div>
+  <div class="panel tw" style="margin-top:12px"><table><thead><tr>${cols.map(([k,l,t],i)=>`<th data-o="${k}" title="${esc(t)}" class="${i?"r":""}" style="cursor:pointer"><span style="border-bottom:1px dotted var(--mute)">${l}</span>${PL.k===k?(PL.d>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody id="tb"></tbody></table></div><div class="bar" id="pgb"></div>`;
+  const view=()=>{const s=PL.q.toLowerCase(),k=PL.k;
+    return d.rows.filter(r=>(r.name+" "+r.sku).toLowerCase().includes(s)).sort((a,b)=>{const x=a[k],y=b[k];if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x=="string"?x.localeCompare(y):x-y)*PL.d})};
+  const amb=(v,goal)=>v==null?"—":`<span style="color:${v>=goal?"var(--ok)":"var(--amber)"}">${pc(v)}</span>`;
+  const draw=()=>{const K=d.k,R=view(),pages=Math.max(1,Math.ceil(R.length/PL.sz));if(PL.pg>=pages)PL.pg=pages-1;
+    $("#kp").innerHTML=card("Продано, шт",f(K.sold))+card("Выручка",m(K.revenue),"ok")+card("Себестоимость",m(K.cost))+card("Прибыль",m(K.profit),K.profit<0?"bad":"ok")+card("Маржа",pc(K.margin))+card("Чистая маржа",pc(K.net_margin),K.net<0?"bad":"")+card("CTR",K.ctr==null?"—":`<span style="color:${K.ctr>=3.5?"var(--ok)":"var(--amber)"}">${pc(K.ctr)}</span>`)+card("CR",K.cr==null?"—":`<span style="color:${K.cr>=2.5?"var(--ok)":"var(--amber)"}">${pc(K.cr)}</span>`)+(K.no_cost?card("Без себестоимости",f(K.no_cost),"warn"):"");
+    $("#tb").innerHTML=R.slice(PL.pg*PL.sz,(PL.pg+1)*PL.sz).map(r=>`<tr><td>${esc(r.name)}<div class="mut" style="font-size:12px">${esc(r.sku)}</div></td><td class="r">${f(r.price)} ₸</td><td class="r ${r.units<=0?"red":""}">${f(r.units)}</td><td class="r">${f(r.sold)}</td><td class="r">${f(r.revenue)} ₸</td>
+    <td class="r">${r.cost_total==null?"—":f(r.cost_total)+" ₸"}<br><input class="in" data-sku="${esc(r.sku)}" data-k="cost" type="number" step="any" value="${r.cost??""}" placeholder="за шт."></td>
+    <td class="r ${r.profit==null?"mut":r.profit<0?"red":"grn"}">${r.profit==null?"—":f(r.profit)+" ₸"}</td><td class="r">${pc(r.margin)}</td><td class="r ${r.ret?"red":"mut"}">${r.ret?r.ret+" ("+pc(r.ret_pct)+")":"—"}</td>
+    <td class="r">${r.shows?f(r.shows):"—"}</td><td class="r">${amb(r.ctr,3.5)}</td><td class="r">${amb(r.cr,2.5)}</td><td class="r">${r.ads?f(r.ads)+" ₸":"—"}</td>
+    <td class="r">${r.drr==null?"—":`<span class="${r.drr>cap?"red":"grn"}">${pc(r.drr)}</span>`}</td><td class="r ${r.net_margin<0?"red":""}">${pc(r.net_margin)}</td></tr>`).join("")||'<tr><td colspan="15" class="msg">Ничего не найдено.</td></tr>';
+    $("#pgb").innerHTML=`<span class="mut" style="padding:8px">Товаров: ${R.length}</span><button id="pv" ${PL.pg?"":"disabled"}>Назад</button><span class="mut" style="padding:8px">${PL.pg+1} из ${pages}</span><button id="nx" ${PL.pg+1<pages?"":"disabled"}>Вперёд</button>
+    <select id="sz">${[10,25,50,100].map(n=>`<option ${n===PL.sz?"selected":""} value="${n}">${n} / стр.</option>`).join("")}</select>`;
+    $("#pv").onclick=()=>{PL.pg--;draw()};$("#nx").onclick=()=>{PL.pg++;draw()};$("#sz").onchange=e=>{PL.sz=+e.target.value;PL.pg=0;draw()}};
+  document.querySelectorAll("[data-pd]").forEach(x=>x.onclick=()=>{PR={from:ago(x.dataset.pd-1),to:iso(new Date())};pricelist()});
+  $("#f").onchange=e=>{PR.from=e.target.value;pricelist()};$("#t").onchange=e=>{PR.to=e.target.value;pricelist()};$("#rf").onclick=()=>pricelist();
+  document.querySelectorAll("[data-o]").forEach(x=>x.onclick=()=>{PL.d=PL.k===x.dataset.o?-PL.d:-1;PL.k=x.dataset.o;pricelist()});
+  const reload=async()=>{d=(await api("/api/pricelist",PR)).data;draw()};
+  $("#tb").onchange=async e=>{const t=e.target;await post("/api/cost",{sku:t.dataset.sku,field:t.dataset.k,value:t.value});reload()};
+  document.querySelectorAll(".s").forEach(x=>x.onchange=async()=>{await post("/api/setting",{k:x.dataset.s,value:x.value});reload()});
+  $("#s").oninput=e=>{PL.q=e.target.value;PL.pg=0;draw()};
+  $("#ex").onclick=()=>{const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"',keys=["sku","name","price","units","sold","revenue","cost","profit","margin","ret","shows","ctr","cr","ads","drr","net_margin"];
+    const csv="\ufeff"+keys.join(";")+"\n"+view().map(r=>keys.map(k=>q(typeof r[k]=="number"?String(Math.round(r[k]*10)/10).replace(".",","):r[k])).join(";")).join("\n");
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="prays-list-"+PR.from+"_"+PR.to+".csv";a.click()};
+  draw()}
+async function marketing(){
+  const j=await api("/api/marketing",R),d=j.data,drr=d.revenue?d.spend/d.revenue*100:0,fx=n=>n.toFixed(1).replace(".",",");
+  $("#view").innerHTML=head("Маркетинг",j," · выручка и заказы берутся из Kaspi, расходы на рекламу вносятся вручную")+rangeBar()+`
+  <div class="grid">${card("Расходы на рекламу",f(d.spend)+" ₸","warn")}${card("Выручка",m(d.revenue),"ok")}${card("ДРР",d.spend?fx(drr)+"%":"—",d.cap&&drr>d.cap?"bad":"")}${card("Выручка на 1 ₸ рекламы",d.spend?fx(d.revenue/d.spend):"—")}${card("Реклама на заказ",d.orders&&d.spend?f(d.spend/d.orders)+" ₸":"—")}</div>
+  <div class="panel"><h2>Добавить расход</h2><div class="bar" style="margin:0"><input type="date" id="ad" value="${iso(new Date())}"><input id="an" placeholder="Кампания или товар" style="min-width:220px"><input id="as" type="number" step="any" placeholder="Сумма, ₸"><button id="ab">Добавить</button></div></div>
+  <div class="panel"><h2>Статистика рекламы по товару <span class="mut" style="font-weight:400">· из рекламного кабинета Kaspi, попадает в «Прайс-лист»</span></h2>
+  <div class="bar" style="margin:0 0 8px"><input type="date" id="sd2" value="${iso(new Date())}"><input id="sk" placeholder="SKU товара"><input id="sh" type="number" placeholder="Показы"><input id="cl" type="number" placeholder="Клики"><input id="or" type="number" placeholder="Заказы"><input id="sp" type="number" step="any" placeholder="Расход, ₸"><button id="sb">Добавить</button></div>
+  <div class="bar" style="margin:0"><input type="file" id="fl" accept=".xlsx,.csv"><button id="imp">Загрузить отчёт</button><span class="mut" id="impst" style="padding:8px">Колонки: дата, SKU или товар, показы, клики, заказы, расход</span></div></div>
+  <div class="panel tw"><h2>По дням</h2><table><thead><tr><th>День</th><th class="r">Заказы</th><th class="r">Выручка</th><th class="r">Реклама</th><th class="r">ДРР</th></tr></thead><tbody>${d.daily.map(r=>`<tr><td>${r.day}</td><td class="r">${f(r.n)}</td><td class="r">${f(r.rev)} ₸</td><td class="r">${r.spend?f(r.spend)+" ₸":"—"}</td><td class="r ${d.cap&&r.spend&&r.rev&&r.spend/r.rev*100>d.cap?"red":""}">${r.spend&&r.rev?fx(r.spend/r.rev*100)+"%":"—"}</td></tr>`).join("")||'<tr><td colspan="5" class="msg">Нет данных за период.</td></tr>'}</tbody></table></div>
+  <div class="panel tw"><h2>Внесённые расходы</h2><table><tbody>${d.ads.map(x=>`<tr><td>${x.day}</td><td>${esc(x.name)}</td><td class="r">${f(x.spend)} ₸</td><td class="r"><button class="in" data-del="${x.id}">Удалить</button></td></tr>`).join("")||'<tr><td class="msg">Расходов пока нет.</td></tr>'}</tbody></table></div>`;
+  bindRange();
+  $("#sb").onclick=async()=>{const r=await post("/api/adstat",{day:$("#sd2").value,sku:$("#sk").value,spend:$("#sp").value,shows:$("#sh").value,clicks:$("#cl").value,orders:$("#or").value});if(r.error){alert(r.error);return}route()};
+  $("#imp").onclick=()=>{const fl=$("#fl").files[0];if(!fl)return;const rd=new FileReader();rd.onload=async()=>{const r=await post("/api/ad/import",{name:fl.name,data:rd.result.split(",")[1]});$("#impst").textContent=r.error?"Ошибка: "+r.error:"Загружено строк: "+(r.n??"готово");if(!r.error)setTimeout(route,1200)};rd.readAsDataURL(fl)};
+  $("#ab").onclick=async()=>{if(!$("#as").value)return;await post("/api/ad",{day:$("#ad").value,name:$("#an").value,spend:$("#as").value});route()};
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{await post("/api/ad/delete",{id:b.dataset.del});route()});}
+
+let P={};
+async function loadPrefs(){try{P=(await api("/api/prefs")).data;$("nav b").textContent=P.company;document.title=P.company}catch(e){}}
+async function journal(){
+  const j=await api("/api/log",{q:Q.q,kind:Q.kind||"",page:Q.page}),d=j.data,pg=Math.max(1,Math.ceil(d.n/50));
+  $("#view").innerHTML=head("Журнал действий",j)+`<div class="bar"><input id="s" placeholder="Поиск по тексту" value="${esc(Q.q)}" style="min-width:260px">
+  <select id="k">${["",...d.kinds].map(x=>`<option value="${x}" ${x===(Q.kind||"")?"selected":""}>${x||"Все разделы"}</option>`).join("")}</select></div>
+  <div class="panel tw"><table><thead><tr><th>Время</th><th>Раздел</th><th>Действие</th></tr></thead><tbody>${d.rows.map(r=>`<tr><td style="white-space:nowrap">${r.t}</td><td><span class="tag">${esc(r.kind)}</span></td><td>${esc(r.text)}</td></tr>`).join("")||'<tr><td colspan="3" class="msg">Записей пока нет.</td></tr>'}</tbody></table></div>
+  <div class="bar"><button id="pv" ${Q.page?"":"disabled"}>Назад</button><span class="mut" style="padding:8px">Страница ${Q.page+1} из ${pg} · записей ${f(d.n)}</span><button id="nx" ${Q.page+1<pg?"":"disabled"}>Вперёд</button></div>`;
+  $("#s").onchange=e=>{Q.q=e.target.value;Q.page=0;route()};$("#k").onchange=e=>{Q.kind=e.target.value;Q.page=0;route()};
+  $("#pv").onclick=()=>{Q.page--;route()};$("#nx").onclick=()=>{Q.page++;route()}}
+async function settings(){
+  const j=await api("/api/prefs"),p=j.data;
+  const F=[["Компания",[["company","Название компании","text","Показывается в меню и в заголовке вкладки."]]],
+  ["Синхронизация",[["start","Начало синхронизации заказов","date","С какой даты загружать историю заказов. Пусто: последние 30 дней. Чем раньше дата, тем дольше загрузка. Новая дата применится сразу после сохранения."],["refresh_min","Интервал обновления, минут","number","Как часто Hub спрашивает у Kaspi новые заказы. Минимум 2."]]],
+  ["Склад и доставка",[["deficit_days","Порог дефицита, дней","number","Товар попадает в дефицит, если при текущих продажах остатка хватит меньше чем на столько дней."],["stuck_days","Долго в доставке, дней","number","Заказ в доставке дольше этого срока попадает в «Рекомендации» на Главной."]]],
+  ["Реклама",[["drr_cap","Потолок ДРР, %","number","Какую долю выручки может съедать реклама. Если ДРР за 7 дней выше, Главная покажет предупреждение, а в Маркетинге цифра станет красной. 0: выключено."]]]];
+  $("#view").innerHTML=head("Настройки",j)+`<div class="bar"><button class="on" id="sv">Сохранить</button><button id="sn">Синхронизировать заказы сейчас</button><span id="ok" class="mut" style="padding:8px"></span></div>`+
+  F.map(([t,fs])=>`<div class="panel"><h2>${t}</h2>${fs.map(([k,l,ty,ds])=>`<div class="rec"><div style="max-width:560px"><b>${l}</b><div class="mut">${ds}</div></div><input class="in" style="width:${ty=="text"?220:150}px;text-align:left" data-p="${k}" type="${ty}" value="${esc(p[k])}"></div>`).join("")}</div>`).join("");
+  $("#sv").onclick=async()=>{const b={};document.querySelectorAll("[data-p]").forEach(x=>b[x.dataset.p]=x.value);const r=await post("/api/prefs",b);
+    if(r.error){$("#ok").textContent="Не сохранено: "+r.error;return}await loadPrefs();$("#ok").textContent="Сохранено"};
+  $("#sn").onclick=async()=>{await post("/api/syncnow",{});$("#ok").textContent="Синхронизация запущена. Обновите страницу через минуту."}}
+
+const pages={pack,home,analytics,products,orders,stock,pricelist,marketing,log:journal,settings};
+async function route(){
+  page=location.hash.slice(1)||"home";if(!pages[page])page="home";
+  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.hash==="#"+page));
+  try{await pages[page]()}catch(e){$("#view").innerHTML=`<p class="msg">Не удалось получить данные: ${esc(e.message)}. Запущен ли server.py?</p>`}}
+addEventListener("hashchange",()=>{Q={q:"",label:"",page:0,filter:"all"};route()});
+setInterval(()=>{if(page==="home"||page==="analytics")route()},60000);
+loadPrefs().finally(route);
+</script>
+</body>
+</html>
